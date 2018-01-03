@@ -1,0 +1,1 @@
+rsync -avz --delete ./* csbjjmp:/root/ansible-k8s/

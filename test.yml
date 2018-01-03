@@ -1,0 +1,10 @@
+---
+- name: test on local machine
+  hosts: master
+  connection: local
+  become: false
+  gather_facts: false
+  run_once: true
+  tasks:
+  - include_role:
+      name: test

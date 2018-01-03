@@ -1,0 +1,11 @@
+---
+- name: check etcd peer
+  fail:
+    msg: "NO etcd_peer"
+  when: not  etcd_peer
+  run_once: true
+    
+- name: generate etcd manifest
+  template:
+    src: etcd.yml.j2
+    dest: "{{mnf_dir}}/etcd.yml"

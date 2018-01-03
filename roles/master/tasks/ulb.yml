@@ -1,0 +1,14 @@
+---
+- name: "check lbip"
+  fail:
+    msg: "NO lbip"
+  when: not  lbip
+  run_once: true
+
+- name: config ulb ip cfg
+  template:
+    src: ulb_lo.j2
+    dest: /etc/sysconfig/network-scripts/ifcfg-lo:1
+
+- name: config ubl ip ip
+  shell: ifup lo:1

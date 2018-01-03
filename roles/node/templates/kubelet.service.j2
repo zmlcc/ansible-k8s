@@ -1,0 +1,75 @@
+[Unit]
+Description=Kubernetes Kubelet Server
+Documentation=https://github.com/kubernetes/kubernetes
+Requires=docker.service network-online.target
+After=docker.service network-online.target
+
+[Service]
+Environment=KUBELET_IMG={{kube_img}}
+Environment=KUBELET_NAME=k8s-{{cluster_name}}
+Environment=BOOTSTRAP_KUBECONFIG={{bsp_kcf}}
+Environment=INFRA_IMAGE={{infra_img}}
+Environment=KR_CGROUP=/kubereserved
+Environment=KUBELET_CFG={{k8s_etc_dir}}
+
+ExecStartPre=-/usr/bin/docker kill ${KUBELET_NAME}
+ExecStartPre=-/usr/bin/docker rm ${KUBELET_NAME}
+ExecStop=/usr/bin/docker stop ${KUBELET_NAME}
+
+ExecStart=/usr/bin/docker run \
+        --name=${KUBELET_NAME} \
+        --net=host \
+        --pid=host \
+        --privileged \
+        --cgroup-parent=${KR_CGROUP} \
+        --add-host={{cluster_name}}.k8s.ucloud:{{lbip}} \
+        -v /dev:/dev \
+        -v /sys:/sys:rshared \
+        -v /var/run:/var/run:rw \
+        -v /var/lib/docker/:/var/lib/docker:rw \
+        -v /var/lib/kubelet/:/var/lib/kubelet:shared \
+        -v /var/log:/var/log:shared \
+        -v {{k8s_etc_dir_host}}:${KUBELET_CFG} \
+        -v /:/rootfs:ro \
+        ${KUBELET_IMG} \
+        /kubelet \
+        --address=0.0.0.0 \
+        --enable-debugging-handlers=true \
+        --enable-server=true \
+        --read-only-port=0 \
+        --node-labels=cluster_name={{cluster_name}} \
+        --register-node=true \
+        --anonymous-auth=true \
+        --authorization-mode=AlwaysAllow \
+        --bootstrap-kubeconfig=${BOOTSTRAP_KUBECONFIG} \
+        --kubeconfig=${KUBELET_CFG}/kubeconfig \
+        --allow-privileged=true \
+        --containerized=true \
+        --docker-disable-shared-pid=false \
+        --runtime-cgroups=${KR_CGROUP}/runtime \
+        --enable-load-reader=true \
+        --fail-swap-on=true \
+        --image-pull-progress-deadline=5m \
+        --runtime-request-timeout=1m \
+        --streaming-connection-idle-timeout=30m \
+        --log-cadvisor-usage=true \
+        --logtostderr=true \
+        --v=2 \
+        --cluster-dns={{cluster_dns}} \
+        --cluster-domain={{cluster_domain}} \
+        --network-plugin-mtu=1454 \
+        --pod-infra-container-image=${INFRA_IMAGE} \
+        --pods-per-core=6 \
+        --cgroup-driver=cgroupfs \
+        --cgroups-per-qos=true \
+        --kubelet-cgroups=${KR_CGROUP}/kubelet \
+        --cert-dir=${KUBELET_CFG}/pki \
+
+Restart=on-failure
+RestartSec=5
+KillMode=process
+StartLimitBurst=3
+StartLimitInterval=60s
+
+[Install]
+WantedBy=multi-user.target

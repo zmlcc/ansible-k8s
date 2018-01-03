@@ -1,0 +1,35 @@
+---
+- name: Generate kube-proxy certificates
+  shell: "{{item}}"
+  args:
+    chdir: "{{pki_dir}}"
+  with_items:
+    - openssl ecparam -name secp521r1 -genkey -noout -out kube-proxy.key
+    - openssl req -new -sha256 -key kube-proxy.key -subj "/CN=system:kube-proxy" | openssl x509 -req -sha256 -CA ca.crt -CAkey ca.key -CAcreateserial 
+          -out kube-proxy.crt -days 365 -extensions v3_client -extfile ./openssl.cnf
+
+- name: generate kube-proxy kubeconfig
+  shell: |
+    kubectl config set-cluster {{cluster_name}} \
+    --certificate-authority={{pki_dir}}/ca.crt \
+    --embed-certs=true \
+    --server=https://{{lbip}}:6443 \
+    --kubeconfig={{kcf_dir}}/proxy.kcf
+
+    kubectl config set-credentials kube-proxy \
+      --client-certificate={{pki_dir}}/kube-proxy.crt \
+      --client-key={{pki_dir}}/kube-proxy.key \
+      --embed-certs=true \
+      --kubeconfig={{kcf_dir}}/proxy.kcf
+
+    kubectl config set-context kube-proxy@{{cluster_name}} \
+      --cluster={{cluster_name}} \
+      --user=kube-proxy \
+      --kubeconfig={{kcf_dir}}/proxy.kcf
+
+    kubectl config use-context kube-proxy@{{cluster_name}} --kubeconfig={{kcf_dir}}/proxy.kcf
+
+- name: generate kube-proxy manifest
+  template:
+    src: kubeproxy.yml.j2
+    dest: "{{mnf_dir}}/kube-proxy.yml" 

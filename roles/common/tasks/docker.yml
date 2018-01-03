@@ -1,0 +1,32 @@
+---
+- name: remove docker package
+  yum:
+    name: docker  docker-common  docker-selinux  docker-engine
+    state: absent
+
+- name: copy docker rpm from  local 
+  copy:
+    src: "{{docker_rpm}}"
+    dest: /tmp
+
+- name: install docker rpm from  file
+  yum:
+    name: "/tmp/{{docker_rpm}}"
+    state: present
+
+
+- file: dest=/etc/docker state=directory
+
+- name: copy docker daemon file 
+  copy: 
+    src: "{{docker_daemon_file}}"
+    dest: /etc/docker/daemon.json
+    mode: 0644
+
+- name: start docker
+  systemd:
+    name: docker
+    state: restarted
+    daemon_reload: yes
+
+

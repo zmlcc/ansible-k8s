@@ -1,0 +1,27 @@
+kube_img: uhub.service.ucloud.cn/wxyz/hyperkube:v1.8.5
+infra_img: "uhub.service.ucloud.cn/wxyz/gc-pause-amd64:3.0"
+etcd_img: "uhub.service.ucloud.cn/wxyz/coreos-etcd"
+
+### folder
+k8s_etc_dir: /etc/k8s
+k8s_pki_dir: "{{k8s_etc_dir}}/pki"
+k8s_etc_dir_host: /etc/k8s
+k8s_pki_dir_host: "{{k8s_etc_dir_host}}/pki"
+
+### cert
+sa_key: "{{k8s_pki_dir}}/sa.pub"
+sa_pri_key: "{{k8s_pki_dir}}/sa.key"
+client_ca: "{{k8s_pki_dir}}/ca.crt"
+kubelet_client_crt: "{{k8s_pki_dir}}/kubelet-client.crt"
+kubelet_client_key: "{{k8s_pki_dir}}/kubelet-client.key"
+tls_crt: "{{k8s_pki_dir}}/apiserver.crt"
+tls_key: "{{k8s_pki_dir}}/apiserver.key"
+cluster_signing_crt: "{{k8s_pki_dir}}/ca.crt"
+cluster_signing_key: "{{k8s_pki_dir}}/ca.key"
+root_ca: "{{k8s_pki_dir}}/ca.crt"
+
+### kcf
+cm_kcf: "{{k8s_etc_dir}}/cm.kcf"
+sch_kcf: "{{k8s_etc_dir}}/sch.kcf"
+bsp_kcf: "{{k8s_etc_dir}}/bootstrap.kcf"
+proxy_kcf: "{{k8s_etc_dir}}/proxy.kcf"

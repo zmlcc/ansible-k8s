@@ -1,0 +1,12 @@
+---
+- name: Deploy node
+  hosts: node
+  gather_facts: false
+  # run_once: true
+  vars:
+    tmp_dir: /root/tmp
+    pki_dir: "{{tmp_dir}}/{{cluster_name}}/pki"
+    kcf_dir: "{{tmp_dir}}/{{cluster_name}}/kcf"
+  tasks:
+  - include_role:
+      name: node

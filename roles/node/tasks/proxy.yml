@@ -1,0 +1,5 @@
+---
+- name: config kube-proxy kubeconfig
+  copy:
+    src: "{{kcf_dir}}/proxy.kcf"
+    dest: "{{proxy_kcf}}"

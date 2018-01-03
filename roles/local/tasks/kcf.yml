@@ -1,0 +1,41 @@
+---
+- name: "check control_server_addr"
+  fail:
+    msg: "NO control_server_addr"
+  when: not  control_server_addr
+
+- name: generate  kubelet kubeconfig of master node
+  template:
+    src: masterk.kcf.A1.j2
+    dest: "{{kcf_dir}}/masterk.kcf"
+
+- name: generate cm/sch kubeconfig
+  template:
+    src: simple.kcf.j2
+    dest: "{{kcf_dir}}/{{item.filename}}"
+  with_items:
+  - {name: "cm", filename: "cm.kcf"}
+  - {name: "sch", filename: "sch.kcf"}
+
+- name: generate admin kubeconfig
+  shell: |
+    kubectl config set-cluster {{cluster_name}} \
+    --certificate-authority={{pki_dir}}/ca.crt \
+    --embed-certs=true \
+    --server=https://{{lbip}}:6443 \
+    --kubeconfig={{kcf_dir}}/admin.kcf
+
+    kubectl config set-credentials admin \
+      --client-certificate={{pki_dir}}/admin.crt \
+      --client-key={{pki_dir}}/admin.key \
+      --embed-certs=true \
+      --kubeconfig={{kcf_dir}}/admin.kcf
+
+    kubectl config set-context admin@{{cluster_name}} \
+      --cluster={{cluster_name}} \
+      --user=admin \
+      --kubeconfig={{kcf_dir}}/admin.kcf
+
+    kubectl config use-context admin@{{cluster_name}} --kubeconfig={{kcf_dir}}/admin.kcf
+
+

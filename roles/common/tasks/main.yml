@@ -1,0 +1,14 @@
+---
+- debug:
+    msg: "{{ansible_kernel}}, {{kernel_release}}"
+
+
+- name: "kernel install"
+  import_tasks: kernel.yml
+  when:  ansible_kernel != kernel_release
+
+- name: config system
+  import_tasks: system.yml
+
+- name: "docker install"
+  import_tasks: docker.yml

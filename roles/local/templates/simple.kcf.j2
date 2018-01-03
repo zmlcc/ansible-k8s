@@ -1,0 +1,14 @@
+apiVersion: v1
+clusters:
+- cluster:
+    server: http://127.0.0.1:8080
+  name: {{cluster_name}}
+contexts:
+- context:
+    cluster: {{cluster_name}}
+    user: {{item.name}}
+  name: {{item.name}}@{{cluster_name}}
+current-context: {{item.name}}@{{cluster_name}}
+kind: Config
+preferences: {}
+users: []

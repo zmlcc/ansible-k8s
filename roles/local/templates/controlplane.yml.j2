@@ -1,0 +1,108 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    caas.version: 0.1.0 
+  labels:
+    io.caas.service: k8s-cp
+    cluster_name: {{cluster_name}}
+  name: k8scp-{{cluster_name}}
+spec:
+  replicas: {{master_size}}
+  template:
+    metadata:
+      labels:
+        cluster_name: {{cluster_name}}
+    spec:
+      nodeSelector:
+        cluster_name: {{cluster_name}}
+      hostNetwork: true
+      restartPolicy: Always
+      hostAliases:
+      - ip: "127.0.0.1"
+        hostnames:
+        - "k8s-controller-2"
+      containers:
+      - name: apiserver
+        image: {{kube_img}}
+        env:
+        - name: ETCD_ADDR
+          value: "http://{{etcd_peer|join(':2379,http://')}}:2379"
+        command: 
+        - /apiserver
+        - --bind-address=0.0.0.0
+        - --insecure-bind-address=127.0.0.1
+        - --insecure-port=8080
+        - --kubernetes-service-node-port={{k8s_service_nodeport}}
+        - --admission-control=NamespaceLifecycle,NodeRestriction,LimitRanger,DefaultStorageClass,ResourceQuota,ServiceAccount
+        - --enable-bootstrap-token-auth=true
+        - --service-account-key-file={{sa_key}}
+        - --authorization-mode=Node,RBAC
+        - --apiserver-count={{master_size}}
+        - --allow-privileged=true
+        - --docker-only=true
+        - --etcd-servers=$(ETCD_ADDR)
+        - --runtime-config=api/all
+        - --enable-load-reader=true
+        - --target-ram-mb=2048
+        - --kubelet-timeout=10s
+        - --logtostderr=true
+        - --v=2
+        - --profiling=true
+        - --service-cluster-ip-range={{service_cidr}}
+        - --service-node-port-range={{service_nodeport_range}}
+        - --storage-backend=etcd3
+        - --client-ca-file={{client_ca}}
+        - --kubelet-client-certificate={{kubelet_client_crt}}
+        - --kubelet-client-key={{kubelet_client_key}}
+        - --tls-cert-file={{tls_crt}}
+        - --tls-private-key-file={{tls_key}}
+        volumeMounts:
+        - mountPath: {{k8s_etc_dir}}
+          name: etc-k8s
+      - name: control-manager
+        image: {{kube_img}}
+        command: 
+        - /controller-manager
+        - --address=127.0.0.1 
+        - --controllers=*,bootstrapsigner,tokencleaner
+        - --cluster-name="k8s-{{cluster_name}}"
+        - --enable-load-reader=true
+        - --kubeconfig={{cm_kcf}}
+        - --leader-elect=true
+        - --log-cadvisor-usage=true
+        - --logtostderr=true
+        - --v=2
+        - --cluster-cidr={{pod_cidr}}
+        - --profiling=true
+        - --service-cluster-ip-range={{service_cidr}}
+        - --cluster-signing-cert-file={{cluster_signing_crt}}
+        - --cluster-signing-key-file={{cluster_signing_key}}
+        - --root-ca-file={{root_ca}}
+        - --service-account-private-key-file={{sa_pri_key}}
+        - --use-service-account-credentials=true
+        volumeMounts:
+        - mountPath: {{k8s_etc_dir}}
+          name: etc-k8s
+      - name: scheduler
+        image: {{kube_img}}
+        command: 
+        - /scheduler
+        - --address=127.0.0.1
+        - --enable-load-reader=true
+        - --kubeconfig={{sch_kcf}}
+        - --leader-elect=true
+        - --log-cadvisor-usage=true
+        - --logtostderr=true
+        - --v=2
+        - --profiling=true
+        volumeMounts:
+        - mountPath: {{k8s_etc_dir}}
+          name: etc-k8s
+      volumes:
+      - name: etc-k8s
+        hostPath:
+          path: {{k8s_etc_dir_host}}
+      
+

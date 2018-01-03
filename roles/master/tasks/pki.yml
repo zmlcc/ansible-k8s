@@ -1,0 +1,28 @@
+---
+- name: create etc dir
+  file: path={{item}} state=directory mode=0755
+  with_items:
+  - "{{k8s_etc_dir_host}}"
+  - "{{k8s_pki_dir_host}}"
+
+- name: copy pki file
+  copy:
+    src: "{{pki_dir}}/{{item}}"
+    dest: "{{k8s_pki_dir_host}}"
+  with_items:
+  - ca.crt
+  - ca.key
+  - apiserver.crt
+  - apiserver.key
+  - sa.pub
+  - sa.key
+  - kubelet-client.crt
+  - kubelet-client.key
+
+- name: copy kcf file
+  copy:
+    src: "{{kcf_dir}}/{{item}}"
+    dest: "{{k8s_etc_dir}}"
+  with_items:
+  - cm.kcf
+  - sch.kcf

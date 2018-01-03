@@ -1,0 +1,43 @@
+---
+- name: generate bootstrap token pub
+  shell: openssl rand -hex 3
+  register: res_pub
+
+- name: generate bootstrap token secret
+  shell: openssl rand -hex 8
+  register: res_secret
+
+- name: generate bootstrap secret manifest
+  template:
+    src: bootstrap-token.yml.j2
+    dest: "{{mnf_dir}}/bootstrap-token.yml"
+  vars:
+    token_pub: "{{res_pub.stdout}}"
+    token_secret: "{{res_secret.stdout}}"
+    token_desc: "{{cluster_name}} bootstrap token"
+
+- name: generate bootstrap kubeconfig
+  shell: |
+    kubectl config set-cluster {{cluster_name}} \
+      --certificate-authority={{pki_dir}}/ca.crt \
+      --embed-certs=true \
+      --server=https://{{lbip}}:6443 \
+      --kubeconfig={{kcf_dir}}/bootstrap.kcf
+
+    kubectl config set-context bootstrap@{{cluster_name}} \
+      --cluster={{cluster_name}} \
+      --user=bootstrap \
+      --kubeconfig={{kcf_dir}}/bootstrap.kcf
+      
+    kubectl config set-credentials bootstrap \
+      --token={{res_pub.stdout}}.{{res_secret.stdout}} \
+      --kubeconfig={{kcf_dir}}/bootstrap.kcf
+
+    kubectl config use-context bootstrap@{{cluster_name}} \
+      --kubeconfig={{kcf_dir}}/bootstrap.kcf
+
+
+- name: generate clusterrolebindings manifest
+  template:
+    src: clusterrolebindings.yml.j2
+    dest: "{{mnf_dir}}/clusterrolebindings.yml" 

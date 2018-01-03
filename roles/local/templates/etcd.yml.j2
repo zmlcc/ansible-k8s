@@ -1,0 +1,39 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: "etcd-{{cluster_name}}"
+  labels:
+    component: "etcd"
+spec:
+  replicas: {{etcd_peer|length}}
+  template:
+    metadata:
+      name: "etcd-{{cluster_name}}"
+      labels:
+        component: "etcd"
+    spec:
+      hostNetwork: true
+      nodeSelector:
+        cluster_name: {{cluster_name}}
+      containers:
+      - name: "etcd"
+        image: "{{etcd_img}}"
+        env:
+        - name: PEERS
+          value: "{% for item in etcd_peer %}etcd{{loop.index0}}:{{item}} {%endfor%}"
+        command:
+        - "/bin/sh"   
+        - "-ecx"
+        - |
+          tmp=$(echo $PEERS | sed -r 's/\s+/\\n/g')
+          IP=$(hostname -i | awk '{print $NF}')
+          NAME=$(echo -e $tmp |grep ${IP} | cut -d: -f1)
+          CLUSTER=$(echo -e $tmp | awk -F: '{printf("%s=http://%s:2380",c$1,$2);c=","} END{print ""}')
+          exec etcd --name ${NAME} \
+          -listen-peer-urls http://0.0.0.0:2380 \
+          -listen-client-urls http://0.0.0.0:2379 \
+          -advertise-client-urls http://${IP}:2379 \
+          -initial-advertise-peer-urls http://${IP}:2380 \
+          -initial-cluster-token etcd-{{cluster_name}} \
+          -initial-cluster ${CLUSTER} \
+          -initial-cluster-state new

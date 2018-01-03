@@ -1,0 +1,6 @@
+---
+- name: "kubelet cfg"
+  import_tasks: kubelet.yml
+
+- name: "kube-proxy cfg"
+  import_tasks: proxy.yml

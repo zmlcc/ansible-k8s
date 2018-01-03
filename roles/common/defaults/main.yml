@@ -1,0 +1,6 @@
+kernel_release: 4.1.0-8.el7.ucloud.x86_64
+kernel_tar: 4.1.0-8.el7.ucloud.x86_64.tar.gz
+kernel_dir: kernel-4.1.0-8.el7.ucloud
+
+docker_rpm: docker.1.13.1.rpm
+docker_daemon_file: docker_daemon.json

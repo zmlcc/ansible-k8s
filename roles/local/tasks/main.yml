@@ -1,0 +1,30 @@
+---
+# - name: generate crt
+#   import_tasks: ssl.yml
+
+# - name: generate kcf
+#   import_tasks: kcf.yml
+
+# - name: generate etcd manifest
+#   import_tasks: etcd.yml
+#   vars:
+#     etcd_peer: "{{ansible_play_hosts}}"
+
+# - name: generate control plane manifest
+#   import_tasks: cp.yml
+#   vars:
+#     etcd_peer: "{{ansible_play_hosts}}"
+
+# - name: generate node bootstrap manifest
+#   import_tasks: bootstrap.yml
+
+# - name: generate calico manifest
+#   import_tasks: calico.yml
+#   vars:
+#     etcd_peer: "{{ansible_play_hosts}}"
+
+# - name: generate kube-proxy manifest
+#   import_tasks: proxy.yml
+
+- name: generate coredns manifest
+  import_tasks: coredns.yml

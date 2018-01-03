@@ -1,0 +1,28 @@
+---
+- modprobe:
+    name: ip_conntrack
+    state: present
+
+- modprobe:
+    name: br_netfilter
+    state: present
+
+- sysctl:
+    name: net.bridge.bridge-nf-call-iptables
+    value: 1
+    state: present
+
+
+- sysctl:
+    name: net.bridge.bridge-nf-call-ip6tables
+    value: 1
+    state: present
+
+- name: remove swap in fstab
+  lineinfile:
+    path: /etc/fstab
+    state: absent
+    regexp: 'swap'
+
+- name: turn off swap
+  command: swapoff -a

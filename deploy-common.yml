@@ -1,0 +1,8 @@
+---
+- name: Deploy kernel/docker
+  hosts: node, master
+  gather_facts: true
+  # run_once: true
+  tasks:
+  - include_role:
+      name: common

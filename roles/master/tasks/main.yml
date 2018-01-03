@@ -1,0 +1,10 @@
+---
+# - name: "ulb cfg"
+#   import_tasks: ulb.yml
+
+# - name: "kubelet cfg"
+#   import_tasks: kubelet.yml
+
+- name: deploy pki/kcf file
+  import_tasks: pki.yml
+

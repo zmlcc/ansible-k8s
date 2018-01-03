@@ -1,0 +1,77 @@
+---
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: k8sproxy-{{cluster_name}}
+  namespace: kube-system
+  annotations:
+    caas.version: 0.1.0 
+  labels:
+    io.caas.service: k8s-proxy
+    cluster_name: {{cluster_name}}
+spec:
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        cluster_name: {{cluster_name}}
+    spec:
+      hostNetwork: true
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 0
+      tolerations:
+      - operator: "Exists"
+        effect: "NoExecute"
+      - operator: "Exists"
+        effect: "NoSchedule"
+      containers:
+      - name: kube-proxy
+        image: {{kube_img}}
+        command: 
+        - /proxy
+        - --bind-address=0.0.0.0
+        - --healthz-bind-address=0.0.0.0
+        - --kube-api-qps=10
+        - --kubeconfig={{proxy_kcf}}
+        - --logtostderr=true
+        - --v=2
+        - --cluster-cidr={{pod_cidr}}
+        - --conntrack-max-per-core=1000000
+        - --conntrack-min=1000000
+        - --iptables-sync-period=10s
+        - --proxy-mode=iptables
+        - --profiling=true
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: {{k8s_etc_dir}}
+          name: etc-k8s
+        - mountPath: /run/xtables.lock
+          name: xtables-lock
+          readOnly: false
+        - mountPath: /lib/modules
+          name: lib-modules
+          readOnly: true
+        - mountPath: /var/run
+          name: var-run
+          readOnly: false
+      volumes:
+      - name: etc-k8s
+        hostPath:
+          path: {{k8s_etc_dir_host}}
+      - name: xtables-lock
+        hostPath:
+          path: /run/xtables.lock
+          type: FileOrCreate
+      - name: lib-modules
+        hostPath:
+          path: /lib/modules
+      - name: var-run
+        hostPath:
+          path: /var/run
+       
+      
+

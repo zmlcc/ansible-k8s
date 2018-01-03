@@ -1,0 +1,62 @@
+---
+- name: Generate openssl conf
+  template: 
+    src: openssl.cnf.j2
+    dest: "{{pki_dir}}/openssl.cnf"
+
+- name: Generate ca certificates
+  shell: "{{item}}"
+  args:
+    chdir: "{{pki_dir}}"
+  with_items:
+    - openssl ecparam -name secp521r1 -genkey -noout -out ca.key
+    - openssl req -x509 -new -sha256 -nodes -key ca.key -days 3650 -out ca.crt -subj "/CN=k8s-{{cluster_name}}-ca"  -extensions v3_ca -config ./openssl.cnf
+
+
+
+- name: Generate apiserver certificates
+  shell: "{{item}}"
+  args:
+    chdir: "{{pki_dir}}"
+  with_items:
+    - openssl ecparam -name secp521r1 -genkey -noout -out apiserver.key
+    - openssl req -new -sha256 -key apiserver.key -subj "/CN=k8s-{{cluster_name}}-apiserver" | openssl x509 -req -sha256 -CA ca.crt -CAkey ca.key -CAcreateserial  
+          -out apiserver.crt -days 365 -extensions v3_apiserver -extfile ./openssl.cnf
+
+- name: Generate admin certificates
+  shell: "{{item}}"
+  args:
+    chdir: "{{pki_dir}}"
+  with_items:
+    - openssl ecparam -name secp521r1 -genkey -noout -out admin.key
+    - openssl req -new -key admin.key -subj "/CN=k8s-{{cluster_name}}-admin/O=system:masters" | openssl x509 -req -sha256 -CA ca.crt -CAkey ca.key -CAcreateserial 
+          -out admin.crt -days 365 -extensions v3_client -extfile ./openssl.cnf
+
+- name: Generate service account certificates
+  shell: "{{item}}"
+  args:
+    chdir: "{{pki_dir}}"
+  with_items:
+    - openssl ecparam -name secp521r1 -genkey -noout -out sa.key
+    - openssl ec -in sa.key -outform PEM -pubout -out sa.pub
+    - openssl req -new -sha256 -key sa.key -subj "/CN=system:kube-controller-manager" | openssl x509 -req -sha256 -CA ca.crt -CAkey ca.key -CAcreateserial 
+          -out sa.crt -days 365 -extensions v3_client -extfile ./openssl.cnf
+
+
+- name: Generate kubelet-client certificates
+  shell: "{{item}}"
+  args:
+    chdir: "{{pki_dir}}"
+  with_items:
+    - openssl ecparam -name secp521r1 -genkey -noout -out kubelet-client.key
+    - openssl req -new -key kubelet-client.key -subj "/CN=k8s-{{cluster_name}}-kubelet-client/O=system:masters" | openssl x509 -req -sha256 -CA ca.crt -CAkey ca.key -CAcreateserial 
+          -out kubelet-client.crt -days 365 -extensions v3_client -extfile ./openssl.cnf
+
+- name: Generate kube-proxy certificates
+  shell: "{{item}}"
+  args:
+    chdir: "{{pki_dir}}"
+  with_items:
+    - openssl ecparam -name secp521r1 -genkey -noout -out kube-proxy.key
+    - openssl req -new -sha256 -key kube-proxy.key -subj "/CN=system:kube-proxy" | openssl x509 -req -sha256 -CA ca.crt -CAkey ca.key -CAcreateserial 
+          -out kube-proxy.crt -days 365 -extensions v3_client -extfile ./openssl.cnf

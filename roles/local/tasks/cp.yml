@@ -1,0 +1,11 @@
+---
+- name: check etcd peer
+  fail:
+    msg: "NO etcd_peer"
+  when: not  etcd_peer
+  run_once: true
+    
+- name: generate control plane manifest
+  template:
+    src: controlplane.yml.j2
+    dest: "{{mnf_dir}}/cp.yml"
