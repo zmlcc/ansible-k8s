@@ -8,4 +8,4 @@
 - name: generate etcd manifest
   template:
     src: etcd.yml.j2
-    dest: "{{mnf_dir}}/etcd.yml"
+    dest: "{{dpy_kom_dir}}/{{AA_etcd_mnf}}"

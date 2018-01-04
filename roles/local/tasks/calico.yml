@@ -2,9 +2,9 @@
 - name: generate  calico rbac
   template:
     src: calico_rbac.yml.j2
-    dest: "{{mnf_dir}}/calico_rbac.yml"
+    dest: "{{dpy_mnf_dir}}/{{AA_clc_rbac_mnf}}"
 
 - name: generate  calico component
   template:
     src: calico_component.yml.j2
-    dest: "{{mnf_dir}}/calico_component.yml"
+    dest: "{{dpy_mnf_dir}}/{{AA_clc_mnf}}"

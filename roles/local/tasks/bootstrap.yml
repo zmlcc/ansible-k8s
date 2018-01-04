@@ -1,4 +1,10 @@
 ---
+
+- name: generate bootstrap rbac manifest
+  template:
+    src: bootstrap_rbac.yml.j2
+    dest: "{{dpy_mnf_dir}}/{{AA_bsp_rbac_mnf}}" 
+
 - name: generate bootstrap token pub
   shell: openssl rand -hex 3
   register: res_pub
@@ -9,8 +15,8 @@
 
 - name: generate bootstrap secret manifest
   template:
-    src: bootstrap-token.yml.j2
-    dest: "{{mnf_dir}}/bootstrap-token.yml"
+    src: bootstrap_token.yml.j2
+    dest: "{{dpy_mnf_dir}}/{{AA_bsp_mnf}}"
   vars:
     token_pub: "{{res_pub.stdout}}"
     token_secret: "{{res_secret.stdout}}"
@@ -19,25 +25,19 @@
 - name: generate bootstrap kubeconfig
   shell: |
     kubectl config set-cluster {{cluster_name}} \
-      --certificate-authority={{pki_dir}}/ca.crt \
+      --certificate-authority={{dpy_pki_dir}}/{{AA_client_ca}} \
       --embed-certs=true \
       --server=https://{{lbip}}:6443 \
-      --kubeconfig={{kcf_dir}}/bootstrap.kcf
+      --kubeconfig={{dpy_kcf_dir}}/{{AA_bsp_kcf}}
 
     kubectl config set-context bootstrap@{{cluster_name}} \
       --cluster={{cluster_name}} \
       --user=bootstrap \
-      --kubeconfig={{kcf_dir}}/bootstrap.kcf
+      --kubeconfig={{dpy_kcf_dir}}/{{AA_bsp_kcf}}
       
     kubectl config set-credentials bootstrap \
       --token={{res_pub.stdout}}.{{res_secret.stdout}} \
-      --kubeconfig={{kcf_dir}}/bootstrap.kcf
+      --kubeconfig={{dpy_kcf_dir}}/{{AA_bsp_kcf}}
 
     kubectl config use-context bootstrap@{{cluster_name}} \
-      --kubeconfig={{kcf_dir}}/bootstrap.kcf
-
-
-- name: generate clusterrolebindings manifest
-  template:
-    src: clusterrolebindings.yml.j2
-    dest: "{{mnf_dir}}/clusterrolebindings.yml" 
+      --kubeconfig={{dpy_kcf_dir}}/{{AA_bsp_kcf}}

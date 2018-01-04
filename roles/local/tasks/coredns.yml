@@ -2,4 +2,4 @@
 - name: generate  coredns manifest
   template:
     src: coredns.yml.j2
-    dest: "{{mnf_dir}}/coredns.yml"
+    dest: "{{dpy_mnf_dir}}/{{AA_cds_mnf}}"

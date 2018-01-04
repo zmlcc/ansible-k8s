@@ -1,0 +1,61 @@
+---
+- name: Generate openssl conf
+  template: 
+    src: openssl.cnf.j2
+    dest: "{{dpy_pki_dir}}/openssl.cnf"
+
+- name: Generate ca certificates
+  shell: "{{item}}"
+  args:
+    chdir: "{{dpy_pki_dir}}"
+  with_items:
+    - openssl ecparam -name secp521r1 -genkey -noout -out {{AA_root_key}}
+    - openssl req -x509 -new -sha256 -nodes -key {{AA_root_key}} -days 3650 -out {{AA_root_crt}} -subj "/CN=k8s-{{cluster_name}}-ca"  -extensions v3_ca -config ./openssl.cnf
+
+
+- name: Generate apiserver certificates
+  shell: "{{item}}"
+  args:
+    chdir: "{{dpy_pki_dir}}"
+  with_items:
+    - openssl ecparam -name secp521r1 -genkey -noout -out {{AA_api_key}}
+    - openssl req -new -sha256 -key {{AA_api_key}} -subj "/CN=k8s-{{cluster_name}}-apiserver" | openssl x509 -req -sha256 -CA {{AA_root_crt}} -CAkey {{AA_root_key}} -CAcreateserial  
+          -out {{AA_api_crt}} -days 365 -extensions v3_apiserver -extfile ./openssl.cnf
+
+- name: Generate admin certificates
+  shell: "{{item}}"
+  args:
+    chdir: "{{dpy_pki_dir}}"
+  with_items:
+    - openssl ecparam -name secp521r1 -genkey -noout -out {{AA_admin_key}}
+    - openssl req -new -key {{AA_admin_key}} -subj "/CN=k8s-{{cluster_name}}-admin/O=system:masters" | openssl x509 -req -sha256 -CA {{AA_root_crt}} -CAkey {{AA_root_key}} -CAcreateserial 
+          -out {{AA_admin_crt}} -days 365 -extensions v3_client -extfile ./openssl.cnf
+
+- name: Generate service account certificates
+  shell: "{{item}}"
+  args:
+    chdir: "{{dpy_pki_dir}}"
+  with_items:
+    - openssl ecparam -name secp521r1 -genkey -noout -out {{AA_sa_key}}
+    - openssl ec -in {{AA_sa_key}} -outform PEM -pubout -out {{AA_sa_pub}}
+    # - openssl req -new -sha256 -key {{AA_sa_key} -subj "/CN=system:kube-controller-manager" | openssl x509 -req -sha256 -CA {{AA_root_crt}} -CAkey {{AA_root_key}} -CAcreateserial 
+    #       -out {{AA_sa_crt}} -days 365 -extensions v3_client -extfile ./openssl.cnf
+
+
+- name: Generate kubelet-client certificates
+  shell: "{{item}}"
+  args:
+    chdir: "{{dpy_pki_dir}}"
+  with_items:
+    - openssl ecparam -name secp521r1 -genkey -noout -out {{AA_kubelet_client_key}}
+    - openssl req -new -key {{AA_kubelet_client_key}} -subj "/CN=k8s-{{cluster_name}}-kubelet-client/O=system:masters" | openssl x509 -req -sha256 -CA {{AA_root_crt}} -CAkey {{AA_root_key}} -CAcreateserial 
+          -out {{AA_kubelet_client_crt}} -days 365 -extensions v3_client -extfile ./openssl.cnf
+
+- name: Generate kube-proxy certificates
+  shell: "{{item}}"
+  args:
+    chdir: "{{dpy_pki_dir}}"
+  with_items:
+    - openssl ecparam -name secp521r1 -genkey -noout -out {{AA_proxy_key}}
+    - openssl req -new -sha256 -key {{AA_proxy_key}} -subj "/CN=system:kube-proxy" | openssl x509 -req -sha256 -CA {{AA_root_crt}} -CAkey {{AA_root_key}} -CAcreateserial 
+          -out {{AA_proxy_crt}} -days 365 -extensions v3_client -extfile ./openssl.cnf

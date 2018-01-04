@@ -13,15 +13,19 @@ basicConstraints = CA:FALSE
 keyUsage = critical, digitalSignature, keyEncipherment
 extendedKeyUsage = serverAuth
 subjectAltName = @alt_names_cluster
-[ v3_etcd ]
-basicConstraints = CA:FALSE
-keyUsage = critical, digitalSignature, keyEncipherment
-extendedKeyUsage = serverAuth, clientAuth
-subjectAltName = @alt_names_etcd
 [ alt_names_cluster ]
 DNS.1 = kubernetes
 DNS.2 = kubernetes.default
 DNS.3 = kubernetes.default.svc
 DNS.4 = kubernetes.default.svc.cluster.local
 DNS.5 = {{cluster_name}}.k8s.ucloud
+DNS.6 = kubernetes.default.svc.{{cluster_domain}}
 IP.1 = {{lbip}}
+IP.2 = {{k8s_service_ip}}
+
+
+[ v3_etcd ]
+basicConstraints = CA:FALSE
+keyUsage = critical, digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth, clientAuth
+subjectAltName = @alt_names_etcd

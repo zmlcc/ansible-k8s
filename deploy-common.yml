@@ -1,6 +1,6 @@
 ---
 - name: Deploy kernel/docker
-  hosts: node, master
+  hosts: L2-kect
   gather_facts: true
   # run_once: true
   tasks:

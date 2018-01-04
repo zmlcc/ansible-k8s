@@ -1,12 +1,11 @@
 ---
 - name: Deploy master
-  hosts: master
+  hosts: L2-kect
   gather_facts: false
   # run_once: true
   vars:
     tmp_dir: /root/tmp
-    pki_dir: "{{tmp_dir}}/{{cluster_name}}/pki"
-    kcf_dir: "{{tmp_dir}}/{{cluster_name}}/kcf"
+    dpy_dir: "{{tmp_dir}}/{{cluster_name}}"
   tasks:
   - include_role:
       name: master

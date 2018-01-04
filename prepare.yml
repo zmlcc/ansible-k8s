@@ -1,29 +1,19 @@
 ---
 - name: Prepare ssl on local machine
-  hosts: master
+  hosts: L2-kect
   connection: local
   become: false
   gather_facts: false
   run_once: true
   vars:
     tmp_dir: /root/tmp
-    pki_dir: "{{tmp_dir}}/{{cluster_name}}/pki"
-    kcf_dir: "{{tmp_dir}}/{{cluster_name}}/kcf"
-    mnf_dir: "{{tmp_dir}}/{{cluster_name}}/mnf"
+    dpy_dir: "{{tmp_dir}}/{{cluster_name}}"
   tasks:
   - name: "check cluster name"
     fail:
       msg: "NO cluster_name"
     when: not  cluster_name
 
-  - name: "create pki_dir" 
-    file: path="{{pki_dir}}" state=directory mode=0755
-
-  - name: "create kcf_dir" 
-    file: path="{{kcf_dir}}" state=directory mode=0755
-  
-  - name: "create mnf_dir" 
-    file: path="{{mnf_dir}}" state=directory mode=0755
 
   - include_role:
        name: local

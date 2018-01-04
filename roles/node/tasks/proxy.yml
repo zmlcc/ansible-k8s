@@ -1,5 +1,5 @@
 ---
 - name: config kube-proxy kubeconfig
   copy:
-    src: "{{kcf_dir}}/proxy.kcf"
-    dest: "{{proxy_kcf}}"
+    src: "{{dpy_kcf_dir}}/{{AA_proxy_kcf}}"
+    dest: "{{A_k8s_etc_hostdir}}/{{AA_proxy_kcf}}"
