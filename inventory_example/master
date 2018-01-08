@@ -1,0 +1,21 @@
+[master]
+10.0.0.1    ansible_user=root ansible_password=this_is_a_test
+10.0.0.2    ansible_user=root ansible_password=this_is_a_test
+10.0.0.3    ansible_user=root ansible_password=this_is_a_test
+
+
+[master:vars]
+cluster_name=master
+lbip=10.0.0.99
+pod_cidr=10.100.0.0/24
+service_cidr=10.200.0.0/24
+service_nodeport_range=30000-32767
+k8s_service_ip=10.200.0.1
+k8s_service_nodeport=31991
+cluster_dns=10.200.0.2
+cluster_domain=cluster.local
+master_size=3
+
+root_cluster_addr=https://10.99.0.1:6443
+root_cluster_domain=king.k8s
+root_cluster_client_ca=/root/tmp/root_cluster/ca.crt
