@@ -3,25 +3,25 @@
 - name: generate kube-proxy kubeconfig
   shell: |
     kubectl config set-cluster {{cluster_name}} \
-    --certificate-authority={{dpy_pki_dir}}/{{AA_client_ca}} \
+    --certificate-authority={{dpy_pki_dir}}/{{client_ca}} \
     --embed-certs=true \
     --server=https://{{lbip}}:6443 \
-    --kubeconfig={{dpy_kcf_dir}}/{{AA_proxy_kcf}}
+    --kubeconfig={{dpy_kcf_dir}}/{{proxy_kcf}}
 
     kubectl config set-credentials kube-proxy \
-      --client-certificate={{dpy_pki_dir}}/{{AA_proxy_crt}} \
-      --client-key={{dpy_pki_dir}}/{{AA_proxy_key}} \
+      --client-certificate={{dpy_pki_dir}}/{{proxy_crt}} \
+      --client-key={{dpy_pki_dir}}/{{proxy_key}} \
       --embed-certs=true \
-      --kubeconfig={{dpy_kcf_dir}}/{{AA_proxy_kcf}}
+      --kubeconfig={{dpy_kcf_dir}}/{{proxy_kcf}}
 
     kubectl config set-context kube-proxy@{{cluster_name}} \
       --cluster={{cluster_name}} \
       --user=kube-proxy \
-      --kubeconfig={{dpy_kcf_dir}}/{{AA_proxy_kcf}}
+      --kubeconfig={{dpy_kcf_dir}}/{{proxy_kcf}}
 
-    kubectl config use-context kube-proxy@{{cluster_name}} --kubeconfig={{dpy_kcf_dir}}/{{AA_proxy_kcf}}
+    kubectl config use-context kube-proxy@{{cluster_name}} --kubeconfig={{dpy_kcf_dir}}/{{proxy_kcf}}
 
 - name: generate kube-proxy manifest
   template:
     src: proxy.yml.j2
-    dest: "{{dpy_mnf_dir}}/{{AA_proxy_mnf}}" 
+    dest: "{{dpy_mnf_dir}}/{{proxy_mnf}}" 

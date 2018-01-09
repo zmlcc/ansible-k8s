@@ -10,33 +10,33 @@
     src: simple.kcf.j2
     dest: "{{dpy_kcf_dir}}/{{item.filename}}"
   with_items:
-  - {name: "cm", filename: "{{AA_cm_kcf}}"}
-  - {name: "sch", filename: "{{AA_sch_kcf}}"}
+  - {name: "cm", filename: "{{cm_kcf}}"}
+  - {name: "sch", filename: "{{sch_kcf}}"}
 
 - name: generate admin kubeconfig
   shell: |
     kubectl config set-cluster {{cluster_name}} \
-    --certificate-authority={{dpy_pki_dir}}/{{AA_client_ca}} \
+    --certificate-authority={{dpy_pki_dir}}/{{client_ca}} \
     --embed-certs=true \
     --server=https://{{lbip}}:6443 \
-    --kubeconfig={{dpy_kcf_dir}}/{{AA_admin_kcf}}
+    --kubeconfig={{dpy_kcf_dir}}/{{admin_kcf}}
 
     kubectl config set-credentials admin \
-      --client-certificate={{dpy_pki_dir}}/{{AA_admin_crt}} \
-      --client-key={{dpy_pki_dir}}/{{AA_admin_key}} \
+      --client-certificate={{dpy_pki_dir}}/{{admin_crt}} \
+      --client-key={{dpy_pki_dir}}/{{admin_key}} \
       --embed-certs=true \
-      --kubeconfig={{dpy_kcf_dir}}/{{AA_admin_kcf}}
+      --kubeconfig={{dpy_kcf_dir}}/{{admin_kcf}}
 
     kubectl config set-context admin@{{cluster_name}} \
       --cluster={{cluster_name}} \
       --user=admin \
-      --kubeconfig={{dpy_kcf_dir}}/{{AA_admin_kcf}}
+      --kubeconfig={{dpy_kcf_dir}}/{{admin_kcf}}
 
-    kubectl config use-context admin@{{cluster_name}} --kubeconfig={{dpy_kcf_dir}}/{{AA_admin_kcf}}
+    kubectl config use-context admin@{{cluster_name}} --kubeconfig={{dpy_kcf_dir}}/{{admin_kcf}}
 
 
     
 - name: generate control plane manifest
   template:
     src: control_plane.yml.j2
-    dest: "{{dpy_kom_dir}}/{{AA_cnp_mnf}}"
+    dest: "{{dpy_kom_dir}}/{{cnp_mnf}}"

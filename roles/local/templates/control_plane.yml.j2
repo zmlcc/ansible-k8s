@@ -33,7 +33,7 @@ spec:
         - --kubernetes-service-node-port={{k8s_service_nodeport}}
         - --admission-control=NamespaceLifecycle,NodeRestriction,LimitRanger,DefaultStorageClass,ResourceQuota,ServiceAccount
         - --enable-bootstrap-token-auth=true
-        - --service-account-key-file={{A_k8s_pki_dir}}/{{AA_sa_pub}}
+        - --service-account-key-file={{k8s_pki_dir}}/{{sa_pub}}
         - --authorization-mode=Node,RBAC
         - --apiserver-count={{master_size}}
         - --allow-privileged=true
@@ -49,13 +49,13 @@ spec:
         - --service-cluster-ip-range={{service_cidr}}
         - --service-node-port-range={{service_nodeport_range}}
         - --storage-backend=etcd3
-        - --client-ca-file={{A_k8s_pki_dir}}/{{AA_client_ca}}
-        - --kubelet-client-certificate={{A_k8s_pki_dir}}/{{AA_kubelet_client_crt}}
-        - --kubelet-client-key={{A_k8s_pki_dir}}/{{AA_kubelet_client_key}}
-        - --tls-cert-file={{A_k8s_pki_dir}}/{{AA_api_crt}}
-        - --tls-private-key-file={{A_k8s_pki_dir}}/{{AA_api_key}}
+        - --client-ca-file={{k8s_pki_dir}}/{{client_ca}}
+        - --kubelet-client-certificate={{k8s_pki_dir}}/{{kubelet_client_crt}}
+        - --kubelet-client-key={{k8s_pki_dir}}/{{kubelet_client_key}}
+        - --tls-cert-file={{k8s_pki_dir}}/{{api_crt}}
+        - --tls-private-key-file={{k8s_pki_dir}}/{{api_key}}
         volumeMounts:
-        - mountPath: {{A_k8s_dir}}
+        - mountPath: {{k8s_dir}}
           name: k8s-dir
       - name: control-manager
         image: {{kube_img}}
@@ -65,7 +65,7 @@ spec:
         - --controllers=*,bootstrapsigner,tokencleaner
         - --cluster-name="k8s-{{cluster_name}}"
         - --enable-load-reader=true
-        - --kubeconfig={{A_k8s_etc_dir}}/{{AA_cm_kcf}}
+        - --kubeconfig={{k8s_etc_dir}}/{{cm_kcf}}
         - --leader-elect=true
         - --log-cadvisor-usage=true
         - --logtostderr=true
@@ -73,13 +73,13 @@ spec:
         - --cluster-cidr={{pod_cidr}}
         - --profiling=true
         - --service-cluster-ip-range={{service_cidr}}
-        - --cluster-signing-cert-file={{A_k8s_pki_dir}}/{{AA_cluster_signing_crt}}
-        - --cluster-signing-key-file={{A_k8s_pki_dir}}/{{AA_cluster_signing_key}}
-        - --root-ca-file={{A_k8s_pki_dir}}/{{AA_root_crt}}
-        - --service-account-private-key-file={{A_k8s_pki_dir}}/{{AA_sa_key}}
+        - --cluster-signing-cert-file={{k8s_pki_dir}}/{{cluster_signing_crt}}
+        - --cluster-signing-key-file={{k8s_pki_dir}}/{{cluster_signing_key}}
+        - --root-ca-file={{k8s_pki_dir}}/{{root_crt}}
+        - --service-account-private-key-file={{k8s_pki_dir}}/{{sa_key}}
         - --use-service-account-credentials=true
         volumeMounts:
-        - mountPath: {{A_k8s_dir}}
+        - mountPath: {{k8s_dir}}
           name: k8s-dir
       - name: scheduler
         image: {{kube_img}}
@@ -87,18 +87,18 @@ spec:
         - /scheduler
         - --address=127.0.0.1
         - --enable-load-reader=true
-        - --kubeconfig={{A_k8s_etc_dir}}/{{AA_sch_kcf}}
+        - --kubeconfig={{k8s_etc_dir}}/{{sch_kcf}}
         - --leader-elect=true
         - --log-cadvisor-usage=true
         - --logtostderr=true
         - --v=2
         - --profiling=true
         volumeMounts:
-        - mountPath: {{A_k8s_dir}}
+        - mountPath: {{k8s_dir}}
           name: k8s-dir
       volumes:
       - name: k8s-dir
         hostPath:
-          path: {{A_k8s_hostdir}}
+          path: {{k8s_hostdir}}
       
 

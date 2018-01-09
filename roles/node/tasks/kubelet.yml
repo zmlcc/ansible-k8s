@@ -1,10 +1,10 @@
 ---
-- file: path="{{A_k8s_hostdir}}" state=absent
+- file: path="{{k8s_hostdir}}" state=absent
 
 - file: path="{{item}}" state=directory mode=0755
   with_items:
-    - "{{A_k8s_etc_hostdir}}"
-    - "{{A_k8s_pki_hostdir}}"
+    - "{{k8s_etc_hostdir}}"
+    - "{{k8s_pki_hostdir}}"
 
 - name: clean iptables
   shell: "{{item}}"
@@ -21,8 +21,8 @@
 
 - name: config kubelet bootstrap kubeconfig
   copy:
-    src: "{{dpy_kcf_dir}}/{{AA_bsp_kcf}}"
-    dest: "{{A_k8s_etc_hostdir}}/{{AA_bsp_kcf}}"
+    src: "{{dpy_kcf_dir}}/{{bsp_kcf}}"
+    dest: "{{k8s_etc_hostdir}}/{{bsp_kcf}}"
 
 - name: config kubelet.service
   template:

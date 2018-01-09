@@ -35,7 +35,7 @@ spec:
         - --bind-address=0.0.0.0
         - --healthz-bind-address=0.0.0.0
         - --kube-api-qps=10
-        - --kubeconfig={{A_k8s_etc_dir}}/{{AA_proxy_kcf}}
+        - --kubeconfig={{k8s_etc_dir}}/{{proxy_kcf}}
         - --logtostderr=true
         - --v=2
         - --cluster-cidr={{pod_cidr}}
@@ -47,7 +47,7 @@ spec:
         securityContext:
           privileged: true
         volumeMounts:
-        - mountPath: {{A_k8s_dir}}
+        - mountPath: {{k8s_dir}}
           name: etc-k8s
         - mountPath: /run/xtables.lock
           name: xtables-lock
@@ -61,7 +61,7 @@ spec:
       volumes:
       - name: etc-k8s
         hostPath:
-          path: {{A_k8s_hostdir}}
+          path: {{k8s_hostdir}}
       - name: xtables-lock
         hostPath:
           path: /run/xtables.lock

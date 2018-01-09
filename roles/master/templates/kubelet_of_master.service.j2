@@ -26,7 +26,7 @@ ExecStart=/usr/bin/docker run \
         -v /var/lib/kubelet/:/var/lib/kubelet:shared \
         -v /var/log:/var/log:shared \
         -v /:/rootfs:ro \
-        -v {{A_kom_hostdir}}:{{A_k8s_dir}} \
+        -v {{kom_hostdir}}:{{k8s_dir}} \
         {{kube_img}} \
         /kubelet \
         --address=0.0.0.0 \
@@ -38,8 +38,8 @@ ExecStart=/usr/bin/docker run \
         --register-node=true \
         --anonymous-auth=true \
         --authorization-mode=AlwaysAllow \
-        --bootstrap-kubeconfig={{A_k8s_etc_dir}}/{{AA_bsp_kcf}} \
-        --kubeconfig={{A_k8s_etc_dir}}/kubeconfig \
+        --bootstrap-kubeconfig={{k8s_etc_dir}}/{{bsp_kcf}} \
+        --kubeconfig={{k8s_etc_dir}}/kubeconfig \
         --allow-privileged=true \
         --containerized=true \
         --docker-disable-shared-pid=false \
@@ -58,7 +58,7 @@ ExecStart=/usr/bin/docker run \
         --cgroup-driver=cgroupfs \
         --cgroups-per-qos=true \
         --kubelet-cgroups=${KR_CGROUP}/kubelet \
-        --cert-dir={{A_k8s_pki_dir}} \
+        --cert-dir={{k8s_pki_dir}} \
 
 Restart=on-failure
 RestartSec=5

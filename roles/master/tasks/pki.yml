@@ -1,30 +1,30 @@
 ---
-- file: path="{{A_k8s_hostdir}}" state=absent
+- file: path="{{k8s_hostdir}}" state=absent
 
 - file: path="{{item}}" state=directory mode=0755
   with_items:
-    - "{{A_k8s_etc_hostdir}}"
-    - "{{A_k8s_pki_hostdir}}"
+    - "{{k8s_etc_hostdir}}"
+    - "{{k8s_pki_hostdir}}"
 
 
 - name: copy pki file
   copy:
     src: "{{dpy_pki_dir}}/{{item}}"
-    dest: "{{A_k8s_pki_hostdir}}"
+    dest: "{{k8s_pki_hostdir}}"
   with_items:
-  - "{{AA_root_crt}}"
-  - "{{AA_root_key}}"
-  - "{{AA_api_crt}}"
-  - "{{AA_api_key}}"
-  - "{{AA_sa_pub}}"
-  - "{{AA_sa_key}}"
-  - "{{AA_kubelet_client_crt}}"
-  - "{{AA_kubelet_client_key}}"
+  - "{{root_crt}}"
+  - "{{root_key}}"
+  - "{{api_crt}}"
+  - "{{api_key}}"
+  - "{{sa_pub}}"
+  - "{{sa_key}}"
+  - "{{kubelet_client_crt}}"
+  - "{{kubelet_client_key}}"
 
 - name: copy kcf file
   copy:
     src: "{{dpy_kcf_dir}}/{{item}}"
-    dest: "{{A_k8s_etc_hostdir}}"
+    dest: "{{k8s_etc_hostdir}}"
   with_items:
-  - "{{AA_cm_kcf}}"
-  - "{{AA_sch_kcf}}"
+  - "{{cm_kcf}}"
+  - "{{sch_kcf}}"
