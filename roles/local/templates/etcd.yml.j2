@@ -15,21 +15,23 @@ spec:
       hostNetwork: true
       nodeSelector:
         cluster_name: {{cluster_name}}
+      restartPolicy: Always
       containers:
       - name: "etcd"
         image: "{{etcd_img}}"
         env:
         - name: PEERS
-          value: "{% for item in etcd_peer %}etcd{{loop.index0}}:{{item}} {%endfor%}"
+          value: "{% for item in etcd_peer %}{{cluster_name}}-etcd{{loop.index0}}:{{item}} {%endfor%}"
         command:
         - "/bin/sh"   
         - "-ecx"
         - |
           tmp=$(echo $PEERS | sed -r 's/\s+/\\n/g')
-          IP=$(hostname -i | awk '{print $NF}')
+          IP=$(ip a show dev eth0 |grep inet | awk '{print $2}' | cut -f1 -d\/)
           NAME=$(echo -e $tmp |grep ${IP} | cut -d: -f1)
           CLUSTER=$(echo -e $tmp | awk -F: '{printf("%s=http://%s:2380",c$1,$2);c=","} END{print ""}')
           exec etcd --name ${NAME} \
+          -data-dir=/var/etcd/${NAME} \
           -listen-peer-urls http://0.0.0.0:2380 \
           -listen-client-urls http://0.0.0.0:2379 \
           -advertise-client-urls http://${IP}:2379 \
@@ -37,3 +39,17 @@ spec:
           -initial-cluster-token etcd-{{cluster_name}} \
           -initial-cluster ${CLUSTER} \
           -initial-cluster-state new
+        volumeMounts:
+        - mountPath: /var/etcd
+          name: etcd-data
+        - mountPath: /var/lock
+          name: var-lock
+      volumes:
+      - name: etcd-data
+        hostPath:
+          path: /var/etcd/
+          type: DirectoryOrCreate
+      - name: var-lock
+        hostPath:
+          path: /var/lock/
+          type: DirectoryOrCreate

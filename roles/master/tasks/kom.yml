@@ -6,6 +6,14 @@
     - "{{A_kom_etc_hostdir}}"
     - "{{A_kom_pki_hostdir}}"
   
+- name: clean iptables
+  shell: "{{item}}"
+  with_items:
+  - iptables -F
+  - iptables -X
+  - iptables -t nat -F
+  - iptables -t nat -X
+
 
 - name: copy kubelet of master bootstrap kubeconfig
   copy:
