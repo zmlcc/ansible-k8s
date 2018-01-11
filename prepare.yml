@@ -1,6 +1,6 @@
 ---
 - name: Prepare ssl on local machine
-  hosts: L2-kect
+  hosts: c1
   connection: local
   become: false
   gather_facts: false

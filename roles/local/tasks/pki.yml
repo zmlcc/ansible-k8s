@@ -38,8 +38,6 @@
   with_items:
     - openssl ecparam -name secp521r1 -genkey -noout -out {{sa_key}}
     - openssl ec -in {{sa_key}} -outform PEM -pubout -out {{sa_pub}}
-    # - openssl req -new -sha256 -key {{sa_key} -subj "/CN=system:kube-controller-manager" | openssl x509 -req -sha256 -CA {{root_crt}} -CAkey {{root_key}} -CAcreateserial 
-    #       -out {{sa_crt}} -days 365 -extensions v3_client -extfile ./openssl.cnf
 
 
 - name: Generate kubelet-client certificates

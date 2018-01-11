@@ -15,6 +15,8 @@ k8s_service_nodeport=31991
 cluster_dns=10.200.0.2
 cluster_domain=cluster.local
 master_size=3
+etcd_peer={{ansible_play_hosts}}
+
 
 root_cluster_addr=https://10.99.0.1:6443
 root_cluster_domain=king.k8s

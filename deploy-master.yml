@@ -1,6 +1,6 @@
 ---
 - name: Deploy master
-  hosts: L2-kect
+  hosts: c1
   gather_facts: false
   # run_once: true
   vars:
